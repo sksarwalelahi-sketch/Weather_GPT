@@ -442,3 +442,115 @@ def test_complete_intelligence_result(timestamp):
     assert len(result.alerts) == 1
     assert len(result.advisories) == 1
     assert len(result.climate_analysis) == 1
+
+# ---------------------------------------------------------------------------
+# Member 3 - Risk Engine Data Quality Tests
+# ---------------------------------------------------------------------------
+
+from intelligence.risk import assess_weather_risk
+from schemas.risk import DataQuality
+
+
+def test_risk_engine_complete_data():
+    """
+    All three core weather measurements are available.
+    """
+
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        temperature=34.0,
+        rainfall=20.0,
+        wind_speed=30.0,
+        source="MOCK",
+    )
+
+    result = assess_weather_risk(weather)
+
+    assert result.data_quality == DataQuality.COMPLETE
+    assert result.confidence == 1.0
+    assert len(result.components) == 3
+
+
+def test_risk_engine_partial_data():
+    """
+    Only two of the three core weather measurements are available.
+    """
+
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        temperature=34.0,
+        rainfall=20.0,
+        source="MOCK",
+    )
+
+    result = assess_weather_risk(weather)
+
+    assert result.data_quality == DataQuality.PARTIAL
+    assert result.confidence == 0.67
+    assert len(result.components) == 2
+
+
+def test_risk_engine_single_measurement():
+    """
+    Only one core weather measurement is available.
+    """
+
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        temperature=39.0,
+        source="MOCK",
+    )
+
+    result = assess_weather_risk(weather)
+
+    assert result.data_quality == DataQuality.PARTIAL
+    assert result.confidence == 0.33
+    assert len(result.components) == 1
+
+
+def test_risk_engine_insufficient_data():
+    """
+    None of the core weather measurements are available.
+    """
+
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        source="MOCK",
+    )
+
+    result = assess_weather_risk(weather)
+
+    assert result.data_quality == DataQuality.INSUFFICIENT
+    assert result.confidence == 0.0
+    assert result.overall_score == 0.0
+    assert len(result.components) == 0
+
+
+def test_risk_engine_overall_risk_uses_highest_component():
+    """
+    Overall risk should reflect the highest individual
+    component risk.
+    """
+
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        temperature=34.0,
+        rainfall=50.0,
+        wind_speed=30.0,
+        source="MOCK",
+    )
+
+    result = assess_weather_risk(weather)
+
+    assert result.overall_level == RiskLevel.HIGH
+    assert result.overall_score == 62.5

@@ -2,100 +2,110 @@
 WeatherGPT - Member 3
 Risk Assessment Schemas
 
-Defines standardized structures for representing individual
-weather risks and overall risk assessments.
+Defines structured data contracts for weather risk analysis.
 """
 
 from datetime import datetime
 from enum import Enum
 
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field
 
 
 class RiskLevel(str, Enum):
     """
-    Standard severity levels used throughout the
-    WeatherGPT intelligence engine.
+    Categorical weather risk level.
     """
 
-    NORMAL = "NORMAL"
     LOW = "LOW"
     MODERATE = "MODERATE"
     HIGH = "HIGH"
     SEVERE = "SEVERE"
 
 
+class DataQuality(str, Enum):
+    """
+    Describes the availability of the weather measurements
+    used by the risk engine.
+
+    COMPLETE:
+        All core weather measurements required by the current
+        baseline risk engine are available.
+
+    PARTIAL:
+        At least one core measurement is available, but one or
+        more measurements are missing.
+
+    INSUFFICIENT:
+        No core weather measurements are available.
+    """
+
+    COMPLETE = "COMPLETE"
+    PARTIAL = "PARTIAL"
+    INSUFFICIENT = "INSUFFICIENT"
+
+
 class RiskComponent(BaseModel):
     """
-    Represents an individual weather-related risk component.
-
-    Example:
-        Rainfall → HIGH → score 85
-        Wind     → MODERATE → score 60
+    Individual weather-risk component.
     """
 
-    model_config = ConfigDict(
-        validate_assignment=True
-    )
-
     risk_type: str = Field(
-        ...,
         min_length=1,
-        description="Type of weather risk, such as rainfall, wind, or heat."
+        description="Type of weather risk being evaluated.",
     )
 
-    level: RiskLevel = Field(
-        ...,
-        description="Severity level of this individual risk."
-    )
+    level: RiskLevel
 
     score: float = Field(
-        ...,
         ge=0,
         le=100,
-        description="Normalized risk score from 0 to 100."
+        description="Normalized risk score from 0 to 100.",
     )
 
     reason: str = Field(
-        ...,
         min_length=1,
-        description="Explanation for why this risk level was assigned."
+        description="Human-readable explanation of the risk.",
     )
 
 
 class RiskAssessment(BaseModel):
     """
-    Complete weather risk assessment produced by the
-    Member 3 Risk Engine.
+    Complete weather risk assessment.
+
+    The assessment contains:
+    - Overall weather risk
+    - Individual risk components
+    - Data-quality information
+    - Assessment timestamp
     """
 
-    model_config = ConfigDict(
-        validate_assignment=True
-    )
-
-    overall_level: RiskLevel = Field(
-        ...,
-        description="Overall weather risk severity."
-    )
+    overall_level: RiskLevel
 
     overall_score: float = Field(
-        ...,
         ge=0,
         le=100,
-        description="Overall normalized risk score from 0 to 100."
+        description="Overall normalized risk score from 0 to 100.",
     )
 
     components: list[RiskComponent] = Field(
         default_factory=list,
-        description="Individual weather risk components."
     )
 
-    location_name: str | None = Field(
-        default=None,
-        description="Location associated with the risk assessment."
+    data_quality: DataQuality = Field(
+        default=DataQuality.INSUFFICIENT,
+        description="Quality/coverage of the weather data used.",
     )
 
-    timestamp: datetime = Field(
-        ...,
-        description="Time at which the risk assessment was generated."
+    confidence: float = Field(
+        default=0.0,
+        ge=0,
+        le=1,
+        description=(
+            "Input-data coverage confidence from 0 to 1. "
+            "This is not the probability of a weather event."
+        ),
     )
+
+    location_name: str | None = None
+
+    timestamp: datetime
