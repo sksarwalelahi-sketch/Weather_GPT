@@ -554,3 +554,48 @@ def test_risk_engine_overall_risk_uses_highest_component():
 
     assert result.overall_level == RiskLevel.HIGH
     assert result.overall_score == 62.5
+
+    # ---------------------------------------------------------------------------
+# Member 3 - Hazard Orchestrator Tests
+# ---------------------------------------------------------------------------
+
+from intelligence.hazard import detect_hazards
+
+
+def test_hazard_orchestrator_returns_list():
+    """
+    Hazard orchestrator should always return a list of
+    standardized hazard results.
+    """
+
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        temperature=39.0,
+        rainfall=65.0,
+        wind_speed=72.0,
+        source="MOCK",
+    )
+
+    result = detect_hazards(weather)
+
+    assert isinstance(result, list)
+
+
+def test_hazard_orchestrator_initially_returns_no_hazards():
+    """
+    Until individual hazard detectors are connected,
+    the orchestrator should return an empty list.
+    """
+
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        source="MOCK",
+    )
+
+    result = detect_hazards(weather)
+
+    assert result == []
