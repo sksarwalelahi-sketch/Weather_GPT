@@ -684,4 +684,121 @@ def test_heavy_rainfall_detector_handles_missing_rainfall():
 
     result = detect_heavy_rainfall(weather)
 
+
+
+# ---------------------------------------------------------------------------
+# Member 3 - Heatwave Hazard Detector Tests
+# ---------------------------------------------------------------------------
+
+from intelligence.heatwave import detect_heatwave
+from schemas.hazard import HazardType
+
+
+def test_heatwave_detector_ignores_moderate_temperature():
+    """
+    Moderate temperature should not create a heatwave hazard.
+    """
+
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        temperature=34.0,
+        source="MOCK",
+    )
+
+    result = detect_heatwave(weather)
+
     assert result is None
+
+
+def test_heatwave_detector_detects_high_temperature():
+    """
+    High temperature should create a HIGH heatwave hazard.
+    """
+
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        temperature=39.0,
+        source="MOCK",
+    )
+
+    result = detect_heatwave(weather)
+
+    assert result is not None
+    assert result.hazard_type == HazardType.HEATWAVE
+    assert result.severity == RiskLevel.HIGH
+    assert result.score == 66.67
+    assert result.confidence == 1.0
+
+
+def test_heatwave_detector_detects_severe_temperature():
+    """
+    Severe temperature should create a SEVERE heatwave hazard.
+    """
+
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        temperature=42.0,
+        source="MOCK",
+    )
+
+    result = detect_heatwave(weather)
+
+    assert result is not None
+    assert result.hazard_type == HazardType.HEATWAVE
+    assert result.severity == RiskLevel.SEVERE
+    assert result.score == 85.0
+    assert result.confidence == 1.0
+
+
+def test_heatwave_detector_handles_missing_temperature():
+    """
+    Missing temperature should not produce a heatwave hazard.
+    """
+
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        source="MOCK",
+    )
+
+    result = detect_heatwave(weather)
+
+    assert result is None
+
+
+def test_heatwave_detector_threshold_boundaries():
+    """
+    Verify the HIGH and SEVERE heatwave boundaries.
+    """
+
+    high_weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        temperature=37.0,
+        source="MOCK",
+    )
+
+    severe_weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        temperature=40.0,
+        source="MOCK",
+    )
+
+    high_result = detect_heatwave(high_weather)
+    severe_result = detect_heatwave(severe_weather)
+
+    assert high_result is not None
+    assert high_result.severity == RiskLevel.HIGH
+
+    assert severe_result is not None
+    assert severe_result.severity == RiskLevel.SEVERE
