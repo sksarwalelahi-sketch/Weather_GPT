@@ -599,3 +599,89 @@ def test_hazard_orchestrator_initially_returns_no_hazards():
     result = detect_hazards(weather)
 
     assert result == []
+
+# ---------------------------------------------------------------------------
+# Member 3 - Heavy Rainfall Hazard Detector Tests
+# ---------------------------------------------------------------------------
+
+from intelligence.heavy_rain import detect_heavy_rainfall
+from schemas.hazard import HazardType
+
+
+def test_heavy_rainfall_detector_ignores_moderate_rainfall():
+    """
+    Moderate rainfall should not create a heavy-rainfall hazard.
+    """
+
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        rainfall=20.0,
+        source="MOCK",
+    )
+
+    result = detect_heavy_rainfall(weather)
+
+    assert result is None
+
+
+def test_heavy_rainfall_detector_detects_high_rainfall():
+    """
+    High rainfall should create a HIGH heavy-rainfall hazard.
+    """
+
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        rainfall=50.0,
+        source="MOCK",
+    )
+
+    result = detect_heavy_rainfall(weather)
+
+    assert result is not None
+    assert result.hazard_type == HazardType.HEAVY_RAINFALL
+    assert result.severity == RiskLevel.HIGH
+    assert result.score == 62.5
+    assert result.confidence == 1.0
+
+
+def test_heavy_rainfall_detector_detects_severe_rainfall():
+    """
+    Severe rainfall should create a SEVERE heavy-rainfall hazard.
+    """
+
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        rainfall=80.0,
+        source="MOCK",
+    )
+
+    result = detect_heavy_rainfall(weather)
+
+    assert result is not None
+    assert result.hazard_type == HazardType.HEAVY_RAINFALL
+    assert result.severity == RiskLevel.SEVERE
+    assert result.score == 85.71
+    assert result.confidence == 1.0
+
+
+def test_heavy_rainfall_detector_handles_missing_rainfall():
+    """
+    Missing rainfall data should not produce a hazard.
+    """
+
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        source="MOCK",
+    )
+
+    result = detect_heavy_rainfall(weather)
+
+    assert result is None
