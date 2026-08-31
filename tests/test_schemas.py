@@ -943,3 +943,124 @@ def test_cyclone_detector_uses_wind_gust_and_pressure():
     assert result.hazard_type == HazardType.CYCLONE
     assert result.severity == RiskLevel.SEVERE
     assert result.score == 80.0
+
+# ---------------------------------------------------------------------------
+# Member 3 - Flood Hazard Detector Tests
+# ---------------------------------------------------------------------------
+
+from intelligence.flood import detect_flood
+
+
+def test_flood_detector_returns_none_for_low_rainfall():
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        rainfall=20.0,
+        source="MOCK",
+    )
+
+    result = detect_flood(weather)
+
+    assert result is None
+
+
+def test_flood_detector_returns_none_for_heavy_rain_without_supporting_signal():
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        rainfall=50.0,
+        source="MOCK",
+    )
+
+    result = detect_flood(weather)
+
+    assert result is None
+
+
+def test_flood_detector_detects_heavy_rain_with_high_probability():
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        rainfall=50.0,
+        precipitation_probability=90.0,
+        source="MOCK",
+    )
+
+    result = detect_flood(weather)
+
+    assert result is not None
+    assert result.hazard_type == HazardType.FLOOD
+    assert result.severity == RiskLevel.HIGH
+    assert result.score == 65.0
+    assert result.confidence == 0.9
+
+
+def test_flood_detector_detects_very_heavy_rainfall():
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        rainfall=80.0,
+        source="MOCK",
+    )
+
+    result = detect_flood(weather)
+
+    assert result is not None
+    assert result.hazard_type == HazardType.FLOOD
+    assert result.severity == RiskLevel.HIGH
+    assert result.score == 60.0
+    assert result.confidence == 0.7
+
+
+def test_flood_detector_detects_severe_rainfall():
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        rainfall=110.0,
+        source="MOCK",
+    )
+
+    result = detect_flood(weather)
+
+    assert result is not None
+    assert result.hazard_type == HazardType.FLOOD
+    assert result.severity == RiskLevel.SEVERE
+    assert result.score == 75.0
+    assert result.confidence == 0.7
+
+
+def test_flood_detector_combines_rainfall_and_probability():
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        rainfall=110.0,
+        precipitation_probability=90.0,
+        source="MOCK",
+    )
+
+    result = detect_flood(weather)
+
+    assert result is not None
+    assert result.hazard_type == HazardType.FLOOD
+    assert result.severity == RiskLevel.SEVERE
+    assert result.score == 95.0
+    assert result.confidence == 0.9
+
+
+def test_flood_detector_returns_none_when_rainfall_is_missing():
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        source="MOCK",
+    )
+
+    result = detect_flood(weather)
+
+    assert result is None
