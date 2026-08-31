@@ -802,3 +802,144 @@ def test_heatwave_detector_threshold_boundaries():
 
     assert severe_result is not None
     assert severe_result.severity == RiskLevel.SEVERE
+
+# ---------------------------------------------------------------------------
+# Member 3 - Cyclone Hazard Detector Tests
+# ---------------------------------------------------------------------------
+
+from intelligence.cyclone import detect_cyclone
+
+
+def test_cyclone_detector_rejects_strong_wind_without_supporting_signal():
+    """
+    Strong wind alone should not be classified as a cyclone.
+    """
+
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        wind_speed=70.0,
+        source="MOCK",
+    )
+
+    result = detect_cyclone(weather)
+
+    assert result is None
+
+
+def test_cyclone_detector_detects_wind_and_low_pressure():
+    """
+    Strong wind combined with low pressure should produce
+    a cyclone hazard.
+    """
+
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        wind_speed=70.0,
+        pressure=985.0,
+        source="MOCK",
+    )
+
+    result = detect_cyclone(weather)
+
+    assert result is not None
+    assert result.hazard_type == HazardType.CYCLONE
+    assert result.severity == RiskLevel.SEVERE
+    assert result.score == 75.0
+    assert result.confidence == 0.7
+
+
+def test_cyclone_detector_detects_wind_and_heavy_rainfall():
+    """
+    Strong wind combined with heavy rainfall should produce
+    a cyclone hazard.
+    """
+
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        wind_speed=70.0,
+        rainfall=70.0,
+        source="MOCK",
+    )
+
+    result = detect_cyclone(weather)
+
+    assert result is not None
+    assert result.hazard_type == HazardType.CYCLONE
+    assert result.severity == RiskLevel.SEVERE
+    assert result.score == 75.0
+    assert result.confidence == 0.7
+
+
+def test_cyclone_detector_detects_wind_and_high_humidity():
+    """
+    Strong wind combined with high humidity should produce
+    a cyclone screening result.
+    """
+
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        wind_speed=65.0,
+        humidity=85.0,
+        source="MOCK",
+    )
+
+    result = detect_cyclone(weather)
+
+    assert result is not None
+    assert result.hazard_type == HazardType.CYCLONE
+    assert result.severity == RiskLevel.HIGH
+    assert result.score == 70.0
+    assert result.confidence == 0.7
+
+
+def test_cyclone_detector_handles_normal_weather():
+    """
+    Normal weather conditions should not produce a cyclone hazard.
+    """
+
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        wind_speed=25.0,
+        pressure=1012.0,
+        rainfall=5.0,
+        humidity=60.0,
+        source="MOCK",
+    )
+
+    result = detect_cyclone(weather)
+
+    assert result is None
+
+
+def test_cyclone_detector_uses_wind_gust_and_pressure():
+    """
+    Strong wind gust plus low pressure should be sufficient
+    for cyclone screening.
+    """
+
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        wind_speed=45.0,
+        wind_gust=95.0,
+        pressure=988.0,
+        source="MOCK",
+    )
+
+    result = detect_cyclone(weather)
+
+    assert result is not None
+    assert result.hazard_type == HazardType.CYCLONE
+    assert result.severity == RiskLevel.SEVERE
+    assert result.score == 80.0
