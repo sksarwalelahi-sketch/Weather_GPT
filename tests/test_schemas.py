@@ -1322,3 +1322,96 @@ def test_generate_alerts_matches_hazards():
         assert alert.alert_type == hazard.hazard_type
         assert alert.severity == hazard.severity
         assert alert.status == AlertStatus.ACTIVE
+
+from schemas.advisory import AdvisoryDomain, AdvisoryPriority
+from intelligence.advisory import generate_advisory, generate_advisories
+
+def test_generate_advisory_for_heavy_rainfall():
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        rainfall=50.0,
+        location_name="Bhubaneswar",
+        source="MOCK",
+    )
+
+    hazards = detect_hazards(weather)
+
+    hazard = next(
+        h for h in hazards
+        if h.hazard_type == HazardType.HEAVY_RAINFALL
+    )
+
+    advisory = generate_advisory(hazard)
+
+    assert advisory.domain == AdvisoryDomain.GENERAL
+    assert advisory.priority == AdvisoryPriority.HIGH
+    assert advisory.risk_level == RiskLevel.HIGH
+    assert advisory.location_name == "Bhubaneswar"
+    assert advisory.title == "Heavy Rainfall Advisory"
+    assert advisory.message
+    assert len(advisory.actions) > 0
+    assert advisory.valid_until > advisory.issued_at
+    assert advisory.source == "WeatherGPT Intelligence Engine"
+
+
+def test_generate_advisory_unknown_location():
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        rainfall=80.0,
+        source="MOCK",
+    )
+
+    hazards = detect_hazards(weather)
+    advisories = generate_advisories(hazards)
+
+    assert advisories
+
+    for advisory in advisories:
+        assert advisory.location_name == "Unknown Location"
+
+
+def test_generate_advisories_matches_detected_hazards():
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        temperature=42.0,
+        rainfall=110.0,
+        wind_speed=80.0,
+        wind_gust=95.0,
+        pressure=985.0,
+        humidity=85.0,
+        location_name="Bhubaneswar",
+        source="MOCK",
+    )
+
+    hazards = detect_hazards(weather)
+    advisories = generate_advisories(hazards)
+
+    assert len(advisories) == len(hazards)
+
+    for hazard, advisory in zip(hazards, advisories):
+        assert advisory.risk_level == hazard.severity
+        assert advisory.location_name == hazard.location_name
+
+
+def test_no_advisories_when_no_hazards():
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        temperature=25.0,
+        rainfall=2.0,
+        wind_speed=10.0,
+        source="MOCK",
+    )
+
+    hazards = detect_hazards(weather)
+    advisories = generate_advisories(hazards)
+
+    assert hazards == []
+    assert advisories == []
