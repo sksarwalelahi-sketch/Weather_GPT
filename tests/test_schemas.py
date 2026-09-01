@@ -1064,3 +1064,91 @@ def test_flood_detector_returns_none_when_rainfall_is_missing():
     result = detect_flood(weather)
 
     assert result is None
+
+# ---------------------------------------------------------------------------
+# Member 3 - Extreme Wind Hazard Detector Tests
+# ---------------------------------------------------------------------------
+
+from intelligence.extreme_wind import detect_extreme_wind
+
+
+def test_extreme_wind_detector_returns_none_for_moderate_wind():
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        wind_speed=30.0,
+        source="MOCK",
+    )
+
+    result = detect_extreme_wind(weather)
+
+    assert result is None
+
+
+def test_extreme_wind_detector_detects_high_wind():
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        wind_speed=50.0,
+        source="MOCK",
+    )
+
+    result = detect_extreme_wind(weather)
+
+    assert result is not None
+    assert result.hazard_type == HazardType.EXTREME_WIND
+    assert result.severity == RiskLevel.HIGH
+    assert result.score == 62.5
+    assert result.confidence == 1.0
+
+
+def test_extreme_wind_detector_detects_severe_wind():
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        wind_speed=80.0,
+        source="MOCK",
+    )
+
+    result = detect_extreme_wind(weather)
+
+    assert result is not None
+    assert result.hazard_type == HazardType.EXTREME_WIND
+    assert result.severity == RiskLevel.SEVERE
+    assert result.score == 91.67
+    assert result.confidence == 1.0
+
+
+def test_extreme_wind_detector_uses_wind_gust():
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        wind_speed=45.0,
+        wind_gust=95.0,
+        source="MOCK",
+    )
+
+    result = detect_extreme_wind(weather)
+
+    assert result is not None
+    assert result.hazard_type == HazardType.EXTREME_WIND
+    assert result.severity == RiskLevel.SEVERE
+    assert result.score == 100.0
+    assert result.confidence == 1.0
+
+
+def test_extreme_wind_detector_returns_none_when_wind_missing():
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        source="MOCK",
+    )
+
+    result = detect_extreme_wind(weather)
+
+    assert result is None
