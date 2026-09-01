@@ -1152,3 +1152,98 @@ def test_extreme_wind_detector_returns_none_when_wind_missing():
     result = detect_extreme_wind(weather)
 
     assert result is None
+
+# ---------------------------------------------------------------------------
+# Member 3 - Hazard Orchestrator Tests
+# ---------------------------------------------------------------------------
+
+from intelligence.hazard import detect_hazards
+
+
+def test_hazard_orchestrator_returns_empty_for_normal_weather():
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        temperature=25.0,
+        rainfall=2.0,
+        wind_speed=10.0,
+        pressure=1012.0,
+        humidity=60.0,
+        source="MOCK",
+    )
+
+    hazards = detect_hazards(weather)
+
+    assert hazards == []
+
+
+def test_hazard_orchestrator_detects_heavy_rain_and_flood():
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        rainfall=80.0,
+        source="MOCK",
+    )
+
+    hazards = detect_hazards(weather)
+
+    hazard_types = {
+        hazard.hazard_type
+        for hazard in hazards
+    }
+
+    assert HazardType.HEAVY_RAINFALL in hazard_types
+    assert HazardType.FLOOD in hazard_types
+
+
+def test_hazard_orchestrator_detects_multiple_hazards():
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        temperature=42.0,
+        rainfall=110.0,
+        wind_speed=80.0,
+        wind_gust=95.0,
+        pressure=985.0,
+        humidity=85.0,
+        source="MOCK",
+    )
+
+    hazards = detect_hazards(weather)
+
+    hazard_types = {
+        hazard.hazard_type
+        for hazard in hazards
+    }
+
+    assert HazardType.HEAVY_RAINFALL in hazard_types
+    assert HazardType.HEATWAVE in hazard_types
+    assert HazardType.CYCLONE in hazard_types
+    assert HazardType.FLOOD in hazard_types
+    assert HazardType.EXTREME_WIND in hazard_types
+
+    assert len(hazards) == 5
+
+
+def test_hazard_orchestrator_returns_standardized_results():
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        rainfall=80.0,
+        wind_speed=70.0,
+        source="MOCK",
+    )
+
+    hazards = detect_hazards(weather)
+
+    assert len(hazards) >= 1
+
+    for hazard in hazards:
+        assert isinstance(hazard, HazardResult)
+        assert 0 <= hazard.score <= 100
+        assert 0 <= hazard.confidence <= 1
+        assert hazard.reason

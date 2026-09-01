@@ -2,17 +2,8 @@
 WeatherGPT - Member 3
 Hazard Intelligence Orchestrator
 
-This module coordinates the individual hazard detection
-engines and returns standardized HazardResult objects.
-
-The individual hazard detectors remain independent:
-
-    heatwave.py
-    cyclone.py
-    flood.py
-    etc.
-
-This module is responsible only for orchestration.
+Coordinates all available hazard detection engines
+and returns standardized HazardResult objects.
 """
 
 from __future__ import annotations
@@ -20,32 +11,38 @@ from __future__ import annotations
 from schemas.hazard import HazardResult
 from schemas.weather import WeatherInput
 
+from intelligence.cyclone import detect_cyclone
+from intelligence.extreme_wind import detect_extreme_wind
+from intelligence.flood import detect_flood
+from intelligence.heatwave import detect_heatwave
+from intelligence.heavy_rain import detect_heavy_rainfall
+
 
 def detect_hazards(
     weather: WeatherInput,
 ) -> list[HazardResult]:
     """
-    Detect weather hazards from a WeatherInput object.
+    Run all available hazard detectors for a weather input.
 
-    Parameters
-    ----------
-    weather:
-        Validated weather observation.
-
-    Returns
-    -------
-    list[HazardResult]
-        Detected hazards.
-
-    Notes
-    -----
-    Individual hazard detectors will be connected to this
-    orchestrator incrementally.
-
-    At this stage, the orchestrator intentionally returns
-    an empty list until the first hazard detector is added.
+    Each detector is independent. A detector may return
+    a HazardResult when a hazard is detected or None when
+    conditions do not meet its detection criteria.
     """
 
     hazards: list[HazardResult] = []
+
+    detectors = (
+        detect_heavy_rainfall,
+        detect_heatwave,
+        detect_cyclone,
+        detect_flood,
+        detect_extreme_wind,
+    )
+
+    for detector in detectors:
+        result = detector(weather)
+
+        if result is not None:
+            hazards.append(result)
 
     return hazards
