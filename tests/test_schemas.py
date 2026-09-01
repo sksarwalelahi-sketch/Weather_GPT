@@ -1415,3 +1415,109 @@ def test_no_advisories_when_no_hazards():
 
     assert hazards == []
     assert advisories == []
+
+
+from schemas.advisory import AdvisoryDomain, AdvisoryPriority
+from intelligence.agriculture import generate_agriculture_advisories
+from intelligence.aviation import generate_aviation_advisories
+from intelligence.marine import generate_marine_advisories
+
+def test_agriculture_advisory_generation():
+    weather = WeatherInput(
+        location_name="Bhubaneswar",
+        latitude=20.2961,
+        longitude=85.8245,
+        timestamp=datetime.now(),
+        temperature=42,
+        rainfall=110,
+        wind_speed=80,
+        source="MOCK",
+    )
+
+    hazards = detect_hazards(weather)
+    advisories = generate_agriculture_advisories(hazards)
+
+    assert len(advisories) > 0
+
+    for advisory in advisories:
+        assert advisory.domain == AdvisoryDomain.AGRICULTURE
+        assert advisory.priority == AdvisoryPriority.CRITICAL
+        assert advisory.risk_level == RiskLevel.SEVERE
+        assert advisory.location_name == "Bhubaneswar"
+        assert advisory.title
+        assert advisory.message
+        assert len(advisory.actions) > 0
+
+
+def test_aviation_advisory_generation():
+    weather = WeatherInput(
+        location_name="Bhubaneswar",
+        latitude=20.2961,
+        longitude=85.8245,
+        timestamp=datetime.now(),
+        wind_speed=80,
+        wind_gust=95,
+        source="MOCK",
+    )
+
+    hazards = detect_hazards(weather)
+    advisories = generate_aviation_advisories(hazards)
+
+    assert len(advisories) > 0
+
+    for advisory in advisories:
+        assert advisory.domain == AdvisoryDomain.AVIATION
+        assert advisory.priority == AdvisoryPriority.CRITICAL
+        assert advisory.risk_level == RiskLevel.SEVERE
+        assert advisory.location_name == "Bhubaneswar"
+        assert advisory.title
+        assert advisory.message
+        assert len(advisory.actions) > 0
+
+
+def test_marine_advisory_generation():
+    weather = WeatherInput(
+        location_name="Bhubaneswar",
+        latitude=20.2961,
+        longitude=85.8245,
+        timestamp=datetime.now(),
+        rainfall=110,
+        wind_speed=80,
+        wind_gust=95,
+        pressure=985,
+        source="MOCK",
+    )
+
+    hazards = detect_hazards(weather)
+    advisories = generate_marine_advisories(hazards)
+
+    assert len(advisories) > 0
+
+    for advisory in advisories:
+        assert advisory.domain == AdvisoryDomain.MARINE
+        assert advisory.priority == AdvisoryPriority.CRITICAL
+        assert advisory.risk_level == RiskLevel.SEVERE
+        assert advisory.location_name == "Bhubaneswar"
+        assert advisory.title
+        assert advisory.message
+        assert len(advisory.actions) > 0
+
+
+def test_domain_advisories_empty_for_normal_weather():
+    weather = WeatherInput(
+        location_name="Bhubaneswar",
+        latitude=20.2961,
+        longitude=85.8245,
+        timestamp=datetime.now(),
+        temperature=25,
+        rainfall=2,
+        wind_speed=10,
+        source="MOCK",
+    )
+
+    hazards = detect_hazards(weather)
+
+    assert generate_agriculture_advisories(hazards) == []
+    assert generate_aviation_advisories(hazards) == []
+    assert generate_marine_advisories(hazards) == []
+    
