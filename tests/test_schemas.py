@@ -1247,3 +1247,78 @@ def test_hazard_orchestrator_returns_standardized_results():
         assert 0 <= hazard.score <= 100
         assert 0 <= hazard.confidence <= 1
         assert hazard.reason
+
+from schemas.alert import AlertStatus
+from intelligence.alerts import generate_alert, generate_alerts
+
+
+def test_generate_alert_for_heavy_rainfall():
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        rainfall=80.0,
+        location_name="Bhubaneswar",
+        source="MOCK",
+    )
+
+    hazards = detect_hazards(weather)
+    rainfall_hazard = next(
+        h for h in hazards
+        if h.hazard_type == HazardType.HEAVY_RAINFALL
+    )
+
+    alert = generate_alert(rainfall_hazard)
+
+    assert alert.alert_type == HazardType.HEAVY_RAINFALL
+    assert alert.severity == RiskLevel.SEVERE
+    assert alert.status == AlertStatus.ACTIVE
+    assert alert.location_name == "Bhubaneswar"
+    assert alert.title == "Severe Heavy Rainfall Warning"
+    assert alert.recommended_action
+    assert alert.valid_until > alert.valid_from
+    assert alert.source == "WeatherGPT Intelligence Engine"
+
+
+def test_generate_alert_uses_unknown_location_when_missing():
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        rainfall=80.0,
+        source="MOCK",
+    )
+
+    hazards = detect_hazards(weather)
+    alerts = generate_alerts(hazards)
+
+    assert alerts
+
+    for alert in alerts:
+        assert alert.location_name == "Unknown Location"
+
+
+def test_generate_alerts_matches_hazards():
+    weather = WeatherInput(
+        latitude=20.0,
+        longitude=85.0,
+        timestamp=datetime.now(),
+        temperature=42.0,
+        rainfall=110.0,
+        wind_speed=80.0,
+        wind_gust=95.0,
+        pressure=985.0,
+        humidity=85.0,
+        location_name="Bhubaneswar",
+        source="MOCK",
+    )
+
+    hazards = detect_hazards(weather)
+    alerts = generate_alerts(hazards)
+
+    assert len(alerts) == len(hazards)
+
+    for hazard, alert in zip(hazards, alerts):
+        assert alert.alert_type == hazard.hazard_type
+        assert alert.severity == hazard.severity
+        assert alert.status == AlertStatus.ACTIVE
