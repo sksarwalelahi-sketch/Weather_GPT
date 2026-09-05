@@ -22,6 +22,7 @@ and the intelligence engine.
 from __future__ import annotations
 
 import json
+import os
 from datetime import date
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
@@ -40,10 +41,25 @@ class Member1Client:
 
     def __init__(
         self,
-        base_url: str = "http://127.0.0.1:8000",
+        base_url: str | None = None,
         timeout: float = 10.0,
     ) -> None:
-        self.base_url = base_url.rstrip("/")
+        """
+        Initialize the Member 1 API client.
+
+        Resolution order:
+            1. Explicit base_url argument
+            2. MEMBER1_API_URL environment variable
+            3. Localhost default
+        """
+
+        resolved_base_url = (
+            base_url
+            or os.getenv("MEMBER1_API_URL")
+            or "http://127.0.0.1:8000"
+        )
+
+        self.base_url = resolved_base_url.rstrip("/")
         self.timeout = timeout
 
     # -----------------------------------------------------------------

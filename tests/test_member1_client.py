@@ -176,3 +176,56 @@ def test_api_invalid_json():
             raise AssertionError(
                 "Expected Member1APIError"
             )
+
+def test_base_url_from_environment(monkeypatch):
+    monkeypatch.setenv(
+        "MEMBER1_API_URL",
+        "http://192.168.31.225:8000",
+    )
+
+    client = Member1Client()
+
+    with patch(
+        "integration.member1_client.urlopen",
+        return_value=FakeResponse(CURRENT_RESPONSE),
+    ) as mock_urlopen:
+
+        result = client.get_current(
+            latitude=20.281195,
+            longitude=85.843376,
+        )
+
+    assert result == CURRENT_RESPONSE
+
+    request = mock_urlopen.call_args.args[0]
+
+    assert request.full_url.startswith(
+        "http://192.168.31.225:8000/weather/current?"
+    )
+
+
+def test_explicit_base_url_overrides_environment(monkeypatch):
+    monkeypatch.setenv(
+        "MEMBER1_API_URL",
+        "http://environment-host:8000",
+    )
+
+    client = Member1Client(
+        "http://explicit-host:9000"
+    )
+
+    with patch(
+        "integration.member1_client.urlopen",
+        return_value=FakeResponse(CURRENT_RESPONSE),
+    ) as mock_urlopen:
+
+        client.get_current(
+            latitude=20.281195,
+            longitude=85.843376,
+        )
+
+    request = mock_urlopen.call_args.args[0]
+
+    assert request.full_url.startswith(
+        "http://explicit-host:9000/weather/current?"
+    )
