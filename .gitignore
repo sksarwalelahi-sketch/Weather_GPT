@@ -23,3 +23,18 @@ htmlcov/
 # Operating system files
 .DS_Store
 Thumbs.db
+
+# Weather data files - downloaded/generated at runtime
+member-1-weather-data/data/gfs/*.grib2
+member-1-weather-data/data/gfs/*.grib
+member-1-weather-data/data/era5/*.zip
+member-1-weather-data/data/era5/*.nc
+member-1-weather-data/data/era5/*.netcdf
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Secrets
+.env``
