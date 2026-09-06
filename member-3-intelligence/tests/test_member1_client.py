@@ -48,7 +48,9 @@ class FakeResponse:
         return json.dumps(self.payload).encode("utf-8")
 
 
-def test_get_current():
+def test_get_current(monkeypatch):
+    monkeypatch.delenv("MEMBER1_API_URL", raising=False)
+
     client = Member1Client()
 
     with patch(
