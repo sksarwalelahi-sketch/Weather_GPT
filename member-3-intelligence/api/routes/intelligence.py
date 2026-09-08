@@ -4,6 +4,8 @@ from datetime import date
 from fastapi import APIRouter, HTTPException, Query
 
 from services.intelligence_service import IntelligenceService
+from schemas.forecast import ForecastAnalysis
+from schemas.intelligence import WeatherIntelligenceResult
 
 
 router = APIRouter(
@@ -14,7 +16,10 @@ router = APIRouter(
 service = IntelligenceService()
 
 
-@router.get("/current")
+@router.get(
+    "/current",
+    response_model=WeatherIntelligenceResult,
+)
 def analyze_current_weather(
     latitude: float = Query(..., ge=-90, le=90),
     longitude: float = Query(..., ge=-180, le=180),
@@ -36,7 +41,10 @@ def analyze_current_weather(
         ) from exc
 
 
-@router.get("/forecast")
+@router.get(
+    "/forecast",
+    response_model=ForecastAnalysis,
+)
 def analyze_forecast_weather(
     latitude: float = Query(..., ge=-90, le=90),
     longitude: float = Query(..., ge=-180, le=180),
@@ -60,7 +68,10 @@ def analyze_forecast_weather(
         ) from exc
 
 
-@router.get("/historical")
+@router.get(
+    "/historical",
+    response_model=WeatherIntelligenceResult,
+)
 def analyze_historical_weather(
     latitude: float = Query(..., ge=-90, le=90),
     longitude: float = Query(..., ge=-180, le=180),

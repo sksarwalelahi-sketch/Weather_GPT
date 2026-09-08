@@ -37,14 +37,19 @@ def test_current_intelligence_endpoint(monkeypatch):
             "location_name": "Bhubaneswar",
             "generated_at": "2026-09-07T16:00:00",
             "risk_assessment": {
-                "level": "LOW",
-                "score": 20.0,
+                "overall_level": "LOW",
+                "overall_score": 20.0,
+                "timestamp": "2026-09-07T16:00:00",
+                "rainfall_risk": 0.0,
+                "wind_risk": 0.0,
+                "heat_risk": 20.0,
                 "confidence": 1.0,
-            },
+                "data_quality": "COMPLETE",
+                },
             "hazards": [],
             "alerts": [],
             "advisories": [],
-            "climate_analysis": None,
+            "climate_analysis":[],
             "processing_version": "1.0.0",
         }
     )
@@ -65,7 +70,7 @@ def test_current_intelligence_endpoint(monkeypatch):
     data = response.json()
 
     assert data["location_name"] == "Bhubaneswar"
-    assert data["risk_assessment"]["level"] == "LOW"
+    assert data["risk_assessment"]["overall_level"] == "LOW"
     assert data["processing_version"] == "1.0.0"
 
     fake_service.analyze_current.assert_called_once_with(
