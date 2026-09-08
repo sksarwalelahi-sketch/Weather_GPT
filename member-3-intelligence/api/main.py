@@ -5,8 +5,14 @@ from api.routes.intelligence import router as intelligence_router
 
 app = FastAPI(
     title="WeatherGPT Intelligence API",
-    description="Member 3 Intelligence and Decision Engine API",
+    description=(
+        "Member 3 Intelligence and Decision Engine for WeatherGPT. "
+        "Provides current weather intelligence, forecast risk analysis, "
+        "historical climate analysis, hazards, alerts, and advisories."
+    ),
     version="1.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
 )
 
 
@@ -16,7 +22,12 @@ app.include_router(
 )
 
 
-@app.get("/health")
+@app.get(
+    "/health",
+    tags=["Health"],
+    summary="Check API health",
+    description="Returns the health status and version of the Member 3 API.",
+)
 def health_check():
     return {
         "status": "healthy",
