@@ -213,3 +213,33 @@ def test_historical_endpoint_returns_502_when_service_fails(monkeypatch):
 
     assert response.status_code == 502
     assert "Unable to analyze historical weather" in response.json()["detail"]
+
+
+
+def test_historical_endpoint_returns_500_when_unexpected_error_occurs(
+    monkeypatch,
+):
+    fake_service = Mock()
+
+    fake_service.analyze_current_with_history.side_effect = RuntimeError(
+        "Unexpected intelligence failure"
+    )
+
+    monkeypatch.setattr(intelligence, "service", fake_service)
+
+    response = client.get(
+        "/api/v1/intelligence/historical",
+        params={
+            "latitude": 20.281195,
+            "longitude": 85.843376,
+            "start_date": "2026-08-18",
+            "end_date": "2026-08-20",
+            "baselines": '{"temperature":30}',
+        },
+    )
+
+    assert response.status_code == 500
+
+    data = response.json()
+
+    assert "Internal intelligence error" in data["detail"]

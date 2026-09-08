@@ -226,3 +226,51 @@ def test_forecast_endpoint_returns_502_when_service_fails(monkeypatch):
     data = response.json()
 
     assert "Unable to analyze forecast weather" in data["detail"]
+
+def test_current_endpoint_returns_500_when_unexpected_error_occurs(monkeypatch):
+    fake_service = Mock()
+
+    fake_service.analyze_current.side_effect = RuntimeError(
+        "Unexpected intelligence failure"
+    )
+
+    monkeypatch.setattr(intelligence, "service", fake_service)
+
+    response = client.get(
+        "/api/v1/intelligence/current",
+        params={
+            "latitude": 20.281195,
+            "longitude": 85.843376,
+        },
+    )
+
+    assert response.status_code == 500
+
+    data = response.json()
+
+    assert "Internal intelligence error" in data["detail"]
+
+
+def test_forecast_endpoint_returns_500_when_unexpected_error_occurs(monkeypatch):
+    fake_service = Mock()
+
+    fake_service.analyze_forecast.side_effect = RuntimeError(
+        "Unexpected intelligence failure"
+    )
+
+    monkeypatch.setattr(intelligence, "service", fake_service)
+
+    response = client.get(
+        "/api/v1/intelligence/forecast",
+        params={
+            "latitude": 20.281195,
+            "longitude": 85.843376,
+            "forecast_days": 7,
+        },
+    )
+
+    assert response.status_code == 500
+
+    data = response.json()
+
+    assert "Internal intelligence error" in data["detail"]
