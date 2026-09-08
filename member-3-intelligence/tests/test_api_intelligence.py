@@ -1,7 +1,7 @@
 from unittest.mock import Mock
 
 from fastapi.testclient import TestClient
-
+from integration.member1_client import Member1APIError
 from api.main import app
 from api.routes import intelligence
 
@@ -182,7 +182,7 @@ def test_forecast_endpoint_rejects_zero_forecast_days():
 def test_current_endpoint_returns_502_when_service_fails(monkeypatch):
     fake_service = Mock()
 
-    fake_service.analyze_current.side_effect = RuntimeError(
+    fake_service.analyze_current.side_effect = Member1APIError(
         "Member 1 API unavailable"
     )
 
@@ -206,7 +206,7 @@ def test_current_endpoint_returns_502_when_service_fails(monkeypatch):
 def test_forecast_endpoint_returns_502_when_service_fails(monkeypatch):
     fake_service = Mock()
 
-    fake_service.analyze_forecast.side_effect = RuntimeError(
+    fake_service.analyze_forecast.side_effect = Member1APIError(
         "Member 1 API unavailable"
     )
 

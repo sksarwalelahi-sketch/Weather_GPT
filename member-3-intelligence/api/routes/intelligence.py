@@ -3,9 +3,10 @@ from datetime import date
 
 from fastapi import APIRouter, HTTPException, Query
 
-from services.intelligence_service import IntelligenceService
+from integration.member1_client import Member1APIError
 from schemas.forecast import ForecastAnalysis
 from schemas.intelligence import WeatherIntelligenceResult
+from services.intelligence_service import IntelligenceService
 
 
 router = APIRouter(
@@ -34,10 +35,16 @@ def analyze_current_weather(
 
         return result.model_dump(mode="json")
 
-    except Exception as exc:
+    except Member1APIError as exc:
         raise HTTPException(
             status_code=502,
             detail=f"Unable to analyze current weather: {exc}",
+        ) from exc
+
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Internal intelligence error: {exc}",
         ) from exc
 
 
@@ -61,10 +68,16 @@ def analyze_forecast_weather(
 
         return result.model_dump(mode="json")
 
-    except Exception as exc:
+    except Member1APIError as exc:
         raise HTTPException(
             status_code=502,
             detail=f"Unable to analyze forecast weather: {exc}",
+        ) from exc
+
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Internal intelligence error: {exc}",
         ) from exc
 
 
@@ -143,8 +156,14 @@ def analyze_historical_weather(
             detail=str(exc),
         ) from exc
 
-    except Exception as exc:
+    except Member1APIError as exc:
         raise HTTPException(
             status_code=502,
             detail=f"Unable to analyze historical weather: {exc}",
+        ) from exc
+
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Internal intelligence error: {exc}",
         ) from exc

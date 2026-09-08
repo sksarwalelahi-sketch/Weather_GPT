@@ -1,5 +1,5 @@
 from unittest.mock import Mock
-
+from integration.member1_client import Member1APIError
 from fastapi.testclient import TestClient
 
 from api.main import app
@@ -194,7 +194,7 @@ def test_historical_endpoint_rejects_empty_baselines():
 def test_historical_endpoint_returns_502_when_service_fails(monkeypatch):
     fake_service = Mock()
 
-    fake_service.analyze_current_with_history.side_effect = RuntimeError(
+    fake_service.analyze_current_with_history.side_effect = Member1APIError(
         "Member 1 historical API unavailable"
     )
 
