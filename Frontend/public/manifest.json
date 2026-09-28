@@ -1,0 +1,59 @@
+{
+  "name": "WeatherGPT — AI Weather Intelligence",
+  "short_name": "WeatherGPT",
+  "description": "Conversational AI for real-time weather forecasting, alerts, and climate information powered by IMD official data.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#1e40af",
+  "orientation": "portrait-primary",
+  "lang": "en-IN",
+  "categories": ["weather", "utilities", "productivity"],
+  "icons": [
+    {
+      "src": "/icon-dark-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "apple touch icon"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Live Weather",
+      "short_name": "Weather",
+      "description": "Get real-time weather for your location",
+      "url": "/weather",
+      "icons": [{ "src": "/icon-dark-32x32.png", "sizes": "32x32" }]
+    },
+    {
+      "name": "Chat with WeatherGPT",
+      "short_name": "Chat",
+      "description": "Ask weather questions in any language",
+      "url": "/chat",
+      "icons": [{ "src": "/icon-dark-32x32.png", "sizes": "32x32" }]
+    },
+    {
+      "name": "Weather Alerts",
+      "short_name": "Alerts",
+      "description": "View active IMD weather warnings",
+      "url": "/alerts",
+      "icons": [{ "src": "/icon-dark-32x32.png", "sizes": "32x32" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}
+

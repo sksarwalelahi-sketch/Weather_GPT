@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  # MongoDB for persistent historical telemetry & user alerts
+  mongodb:
+    image: mongo:7.0
+    container_name: weathergpt-mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  # Redis for ultra-fast weather caching & websocket pub/sub
+  redis:
+    image: redis:7-alpine
+    container_name: weathergpt-redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+  # Member 1: Data Ingestion & API Gateway (Port 8000)
+  data-service:
+    build:
+      context: ./Data
+      dockerfile: Dockerfile
+    container_name: weathergpt-data
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - INTELLIGENCE_API_URL=http://intelligence-service:8001
+    env_file:
+      - ./Data/.env
+    depends_on:
+      - mongodb
+      - redis
+
+  # Member 3: Risk Intelligence & Advisory Engine (Port 8001)
+  intelligence-service:
+    build:
+      context: ./Intelligence
+      dockerfile: Dockerfile
+    container_name: weathergpt-intelligence
+    restart: always
+    ports:
+      - "8001:8001"
+    environment:
+      - DATA_SERVICE_URL=http://data-service:8000
+    depends_on:
+      - data-service
+
+  # Member 2: Conversational LLM Engine (Port 8002)
+  llm-service:
+    build:
+      context: ./LLM
+      dockerfile: Dockerfile
+    container_name: weathergpt-llm
+    restart: always
+    ports:
+      - "8002:8002"
+    environment:
+      - DATA_SERVICE_URL=http://data-service:8000
+      - INTELLIGENCE_SERVICE_URL=http://intelligence-service:8001
+    depends_on:
+      - data-service
+      - intelligence-service
+
+  # Frontend: Next.js Responsive UI (Port 3000)
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+    container_name: weathergpt-frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    depends_on:
+      - data-service
+
+volumes:
+  mongo-data:
+

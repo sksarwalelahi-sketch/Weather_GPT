@@ -1,0 +1,25 @@
+name: weathergpt-gfs
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - pip
+  # These packages must come from conda-forge on Windows so the native
+  # ecCodes DLLs are installed alongside cfgrib.
+  - eccodes=2.48.0
+  - cfgrib=0.9.15.1
+  - xarray=2026.7.0
+  - numpy
+  - pip:
+      - fastapi==0.141.0
+      - uvicorn==0.52.4
+      - httpx==0.28.1
+      - pydantic==2.13.5
+      - python-dotenv==1.1.1
+      - motor==3.7.1
+      - redis==6.4.0
+      - APScheduler==3.11.3
+      - pytest==9.1.1
+      - pytest-asyncio==1.4.0
+      - cdsapi==0.7.7
+      - paho-mqtt==2.1.0

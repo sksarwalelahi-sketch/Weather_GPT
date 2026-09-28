@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+ollama
+python-dotenv
+pydantic
+httpx
+chromadb
+sentence-transformers
+faster-whisper
+python-multipart

@@ -1,0 +1,67 @@
+AVIATION WEATHER GUIDELINES
+
+Weather conditions are important for aviation safety and flight operations.
+
+IMPORTANT AVIATION WEATHER PARAMETERS
+
+1. Wind speed
+2. Wind direction
+3. Visibility
+4. Cloud conditions
+5. Precipitation
+6. Thunderstorms
+7. Temperature
+8. Pressure
+9. Weather warnings
+
+VISIBILITY
+
+Poor visibility caused by fog, heavy rain, dust, or other conditions can
+affect aircraft operations.
+
+Pilots and aviation operators should monitor official aviation weather
+information before and during flight operations.
+
+STRONG WINDS
+
+Strong winds can affect takeoff, landing, and aircraft operations.
+
+Wind direction and wind speed should be monitored using official aviation
+weather information.
+
+THUNDERSTORMS
+
+Thunderstorms can produce strong winds, heavy rainfall, lightning, and
+turbulence.
+
+Aircraft operators should monitor official weather warnings and aviation
+weather reports when thunderstorms are expected.
+
+HEAVY RAIN
+
+Heavy rainfall can reduce visibility and affect airport and flight
+operations.
+
+Official aviation weather information should be checked before making
+operational decisions.
+
+AVIATION WEATHER INFORMATION
+
+Important information may include:
+
+- Current weather conditions
+- Wind information
+- Visibility
+- Cloud conditions
+- Precipitation
+- Thunderstorm warnings
+- Forecast conditions
+- Airport weather information
+
+IMPORTANT
+
+WeatherGPT provides general aviation weather information.
+
+Flight safety and operational decisions must always rely on official
+aviation weather services, airport authorities, air traffic services,
+and qualified aviation professionals.

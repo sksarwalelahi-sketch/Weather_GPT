@@ -1,0 +1,61 @@
+AGRICULTURE WEATHER GUIDELINES
+
+Weather conditions can strongly affect farming activities, crop growth,
+irrigation, harvesting, and livestock management.
+
+WEATHER INFORMATION IMPORTANT FOR FARMERS
+
+1. Temperature
+2. Rainfall
+3. Rainfall probability
+4. Humidity
+5. Wind speed
+6. Weather warnings
+7. Forecast for upcoming days
+
+RAINFALL AND FARMING
+
+1. Rainfall forecasts can help farmers plan irrigation.
+2. Heavy rainfall may create waterlogging and crop damage.
+3. Farmers should monitor rainfall warnings before applying fertilizers
+   or pesticides.
+4. During periods of expected heavy rain, farmers should follow local
+   agricultural advisories.
+5. Farmers should avoid unnecessary irrigation when sufficient rainfall
+   is expected.
+
+EXTREME HEAT
+
+1. High temperatures can increase water requirements for crops.
+2. Farmers should monitor official heat and weather warnings.
+3. Adequate water management can help reduce heat stress on crops.
+4. Livestock should have access to sufficient drinking water and shade.
+
+STRONG WINDS
+
+1. Strong winds can damage crops, trees, greenhouses, and farm structures.
+2. Farmers should secure temporary structures when strong winds are expected.
+3. Follow official weather warnings before performing outdoor agricultural
+   activities.
+
+FARMING DECISIONS
+
+Weather information can help farmers decide:
+
+- When to irrigate
+- When to harvest
+- When to sow crops
+- When to apply fertilizers
+- When to apply pesticides
+- When to protect crops from extreme weather
+- When to take precautions for livestock
+
+IMPORTANT
+
+Agricultural decisions should consider local soil conditions, crop type,
+growth stage, local weather conditions, and advice from agricultural
+experts.
+
+WeatherGPT provides general weather-based agricultural information.
+Farmers should follow official agricultural advisories and local
+government recommendations for important farming decisions.
